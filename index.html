@@ -1,0 +1,528 @@
+<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Download from Proton Drive — MIA Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --grass:#5D9E31; --darkgrass:#3A5F1E; --deepsky:#3A8FC7;
+  --dark:#080E1A; --panel:#141E2E; --card:#1A2435;
+  --light:#F0EBD8; --accent:#FFD700; --warn:#FF6B35;
+  --tip:#47C96B; --sand:#F5D67A; --mia:#5D9E31;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+
+body {
+  background:var(--dark);
+  font-family:'Nunito',sans-serif;
+  color:var(--light);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── CANVAS BACKGROUND ── */
+#bg-canvas { position:fixed; top:0;left:0; width:100%;height:100%; z-index:0; pointer-events:none; }
+
+/* ── GROUND ── */
+.ground { position:fixed; bottom:0;left:0;right:0;z-index:1;pointer-events:none; }
+.ground-grass {
+  height:20px;
+  background:repeating-linear-gradient(90deg,
+    #5D9E31 0,#5D9E31 15px,#4A8525 15px,#4A8525 30px,
+    #6BAF38 30px,#6BAF38 45px,#4A8525 45px,#4A8525 60px);
+  border-top:3px solid #8FD44A;
+}
+.ground-dirt {
+  height:14px;
+  background:repeating-linear-gradient(90deg,
+    #8B6340 0,#8B6340 15px,#7A5530 15px,#7A5530 30px,
+    #9A7050 30px,#9A7050 45px,#7A5530 45px,#7A5530 60px);
+}
+
+.site-wrap { position:relative; z-index:2; }
+
+/* ── TOP BAR ── */
+.top-bar {
+  background:rgba(8,14,26,0.88); backdrop-filter:blur(14px);
+  border-bottom:2px solid rgba(93,158,49,0.4);
+  padding:8px 20px; display:flex; align-items:center;
+  justify-content:space-between; gap:14px; flex-wrap:wrap;
+  position:sticky; top:0; z-index:100;
+  box-shadow:0 2px 24px rgba(93,158,49,0.12);
+}
+.top-bar-left{display:flex;align-items:center;gap:10px;}
+.top-bar-logo {
+  width:36px; height:36px; flex-shrink:0;
+  border-radius:8px; object-fit:cover;
+  border:2px solid rgba(93,158,49,0.5);
+  box-shadow:0 0 12px rgba(93,158,49,0.4);
+}
+.top-bar-name {
+  font-family:'Press Start 2P',monospace; font-size:7px;
+  color:var(--accent); letter-spacing:1.5px; line-height:1.7;
+  text-shadow:0 0 10px rgba(255,215,0,0.4); display:block;
+}
+.top-bar-tagline{font-size:10px;color:#6A9A6A;letter-spacing:0.5px;}
+.top-bar-join {
+  display:inline-flex; align-items:center; gap:6px;
+  background:linear-gradient(135deg,#5865F2,#4752C4);
+  color:#fff; font-family:'Press Start 2P',monospace;
+  font-size:7px; padding:7px 14px; border-radius:6px;
+  text-decoration:none; letter-spacing:0.5px;
+  border:1.5px solid rgba(140,150,255,0.4);
+  transition:transform .2s,box-shadow .2s;
+  box-shadow:0 2px 10px rgba(88,101,242,0.35);
+  white-space:nowrap;
+}
+.top-bar-join:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 4px 16px rgba(88,101,242,0.5);}
+.top-bar-join svg{width:14px;height:14px;flex-shrink:0;fill:#fff;}
+
+/* ── HERO ── */
+.hero {
+  background:linear-gradient(180deg,
+    #87CEEB 0%,#5BADD4 36%,
+    #5D9E31 36%,#4A7E26 52%,
+    #8B6340 52%,#6B4C2A 100%);
+  padding:32px 20px 20px; text-align:center;
+  border-bottom:6px solid var(--darkgrass);
+  position:relative;overflow:hidden;
+}
+.hero-clouds{position:absolute;top:0;left:0;right:0;bottom:50%;pointer-events:none;}
+.hcloud{ position:absolute;background:rgba(255,255,255,0.86);border-radius:3px; animation:cloudDrift linear infinite;}
+.hcloud::before{ content:'';position:absolute;background:rgba(255,255,255,0.86);border-radius:3px;width:55%;height:120%;top:-60%;left:14%;box-shadow:26px 0 0 rgba(255,255,255,0.86);}
+@keyframes cloudDrift{from{transform:translateX(-150px)}to{transform:translateX(110vw)}}
+.hero h1 {
+  font-family:'Press Start 2P',monospace;
+  font-size:clamp(13px,3.2vw,22px);
+  color:#fff;text-shadow:3px 3px 0 #000,0 0 30px rgba(255,255,255,0.15);
+  line-height:1.6; position:relative;z-index:1;
+}
+.hero .badge {
+  display:inline-block;background:rgba(0,0,0,0.55);
+  border:2px solid var(--accent);padding:4px 16px;
+  font-family:'Press Start 2P',monospace;font-size:7px;
+  color:var(--accent);letter-spacing:2px;margin-bottom:10px;
+  backdrop-filter:blur(4px);box-shadow:0 0 18px rgba(255,215,0,0.15);
+  position:relative;z-index:1;
+}
+.hero-sub{ font-size:13px; color:var(--sand); font-weight:700; margin-top:4px; position:relative; z-index:1; }
+
+/* ── WIZARD ── */
+.wizard-wrap{ max-width:780px; margin: 20px auto 40px; padding: 0 18px; z-index:2; position:relative; }
+.step-container {
+  background:rgba(20,30,46,0.85); backdrop-filter:blur(12px);
+  border-radius:14px; padding:22px 20px; min-height:280px;
+  box-shadow:0 6px 32px rgba(0,0,0,0.4), 0 0 30px rgba(93,158,49,0.12);
+  border:1px solid rgba(93,158,49,0.2); transition:all 0.4s;
+}
+.step-panel {
+  display:none;
+  padding-left:16px;
+  border-left:3px solid transparent;
+  transition: border-color 0.3s;
+}
+.step-panel.active { display:block; animation:fadeSlide 0.3s ease; }
+@keyframes fadeSlide { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+.step-title {
+  font-size:18px; font-weight:900; color:#fff; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.step-num {
+  font-family:'Press Start 2P',monospace;
+  font-size:7px; padding:3px 10px; border-radius:4px;
+  color:#fff; letter-spacing:1px;
+  box-shadow:0 0 12px rgba(93,158,49,0.6);
+}
+.step-body { font-size:14px; line-height:1.7; color:#C8D8E0; }
+.step-body strong { color:var(--accent); }
+
+.callout {
+  display:flex; gap:8px; align-items:flex-start;
+  border-radius:6px; padding:8px 12px; margin-top:10px;
+  font-size:12.5px; line-height:1.6;
+  backdrop-filter:blur(4px);
+}
+.callout.tip { background:rgba(71,201,107,0.08); border:1px solid #47C96B; color:#A8F0BC; }
+.callout.warn { background:rgba(255,107,53,0.08); border:1px solid #FF6B35; color:#FFB898; }
+.callout.info { background:rgba(58,143,199,0.08); border:1px solid #3A8FC7; color:#A8D8F8; }
+.callout-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
+
+.callout.mia-callout {
+  background:linear-gradient(135deg, rgba(155,79,219,0.1), rgba(255,105,180,0.08));
+  border:1px solid rgba(198,120,255,0.4);
+  color:#F0C8F0; margin-top:14px;
+  box-shadow:0 0 14px rgba(198,120,255,0.12);
+  padding:10px 14px; font-size:13px; line-height:1.65;
+}
+.callout.mia-callout .callout-icon img {
+  width:18px; height:18px; border-radius:3px; vertical-align:middle;
+}
+
+/* ── PERSISTENT COMMON ISSUES ── */
+.common-issues {
+  background: rgba(10,15,26,0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,107,53,0.3);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: 14px;
+  color: #FFB898;
+  box-shadow: 0 4px 16px rgba(255,107,53,0.1);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.common-issues strong { color: #fff; }
+.common-issues ul {
+  list-style: none; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 8px;
+}
+.common-issues ul li {
+  background: rgba(255,107,53,0.08);
+  border: 1px solid rgba(255,107,53,0.2);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
+/* ── EXTRA BUTTON ── */
+#stepExtraBtn {
+  display:none; text-align:center; margin:14px 0 0;
+}
+#stepExtraBtn a {
+  display:inline-block;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color:#000; font-weight:900; font-size:14px;
+  padding:11px 26px; border-radius:12px;
+  text-decoration:none; border:2px solid #FF8C00;
+  box-shadow:0 0 22px rgba(255,215,0,0.5);
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+#stepExtraBtn a:hover{ transform:translateY(-3px); box-shadow:0 0 32px rgba(255,215,0,0.85); }
+
+/* ── NAVIGATION ── */
+.progress-bar { width:100%; height:4px; background:rgba(255,255,255,0.07); border-radius:3px; margin-bottom:6px; }
+.progress-fill { height:100%; width:0%; background:linear-gradient(90deg, var(--grass), var(--accent)); border-radius:3px; transition:width 0.3s; box-shadow:0 0 8px rgba(93,158,49,0.5); }
+.nav-row {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; margin-top:14px; flex-wrap:wrap;
+}
+.nav-btn {
+  background:rgba(36,48,64,0.8); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.12); color:#fff;
+  font-size:13px; font-weight:700; padding:9px 18px;
+  border-radius:8px; cursor:pointer; transition:0.2s;
+  display:flex; align-items:center; gap:5px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.3);
+  font-family:'Nunito',sans-serif;
+}
+.nav-btn:hover:not(:disabled){background:rgba(71,201,107,0.18);border-color:var(--tip);box-shadow:0 0 16px rgba(71,201,107,0.25);}
+.nav-btn:disabled{opacity:0.3;cursor:not-allowed;}
+.step-indicator {
+  font-family:'Press Start 2P',monospace; font-size:7px;
+  color:var(--accent); letter-spacing:1px; text-align:center;
+  text-shadow:0 0 10px rgba(255,215,0,0.35);
+}
+
+/* ── FOOTER ── */
+.footer { text-align:center; margin-top:24px; padding:0 18px 30px; }
+.footer-inner {
+  background:rgba(0,0,0,0.72); backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.08); border-radius:12px;
+  padding:16px 22px; display:inline-block;
+  min-width:260px; box-shadow:0 8px 20px rgba(0,0,0,0.5);
+}
+.footer-logo {
+  font-family:'Press Start 2P',monospace; font-size:8px;
+  color:var(--mia); letter-spacing:2px; margin-bottom:6px;
+  text-shadow:0 0 12px rgba(93,158,49,0.5);
+}
+.footer-sub { font-size:10px; color:#7A8A9A; letter-spacing:1px; }
+.footer-sub span { color:#FF6B6B; }
+
+@media (max-width:600px){
+  .top-bar{padding:8px 12px;gap:8px;}
+  .top-bar-join{font-size:6px;padding:5px 10px;}
+  .common-issues ul { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="ground"><div class="ground-grass"></div><div class="ground-dirt"></div></div>
+
+<div class="site-wrap">
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="top-bar-left">
+    <img src="mia-icon.png" alt="MIA" class="top-bar-logo">
+    <div>
+      <span class="top-bar-name">Minecraft Items Accelerated [MIA]</span>
+      <span class="top-bar-tagline">Guides that keep you safe</span>
+    </div>
+  </div>
+  <a href="https://discord.gg/tS5WmGEyxN" class="top-bar-join" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="none" preserveAspectRatio="xMidYMid meet">
+      <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.1.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" fill="#fff"/>
+    </svg>
+    Join Now!
+  </a>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-clouds">
+    <div class="hcloud" style="width:72px;height:18px;top:16px;left:6%;animation-duration:34s;animation-delay:-4s;"></div>
+    <div class="hcloud" style="width:52px;height:14px;top:10px;left:30%;animation-duration:26s;animation-delay:-14s;"></div>
+    <div class="hcloud" style="width:85px;height:20px;top:22px;left:55%;animation-duration:40s;animation-delay:-8s;"></div>
+    <div class="hcloud" style="width:58px;height:15px;top:8px;left:78%;animation-duration:30s;animation-delay:-20s;"></div>
+  </div>
+  <div class="badge">📦 MIA GUIDE</div>
+  <h1>HOW TO DOWNLOAD<br>FROM PROTON DRIVE</h1>
+  <p class="hero-sub">Encrypted · no ads · safe for everyone</p>
+</div>
+
+<!-- WIZARD -->
+<div class="wizard-wrap">
+  <div class="step-container" id="stepContainer"></div>
+
+  <!-- PERSISTENT COMMON ISSUES & FIXES (replaces quick‑tips) -->
+  <div class="common-issues">
+    <strong>🛠️ Common Issues & Fixes</strong>
+    <ul>
+      <li>⏳<strong>Download not starting?</strong> Wait – files decrypt in your browser first.</li>
+      <li>🐌<strong>Slow download?</strong> Switch to Wi‑Fi or try a different browser.</li>
+      <li>🍎<strong>Safari (iOS) problems?</strong> Use Chrome for iOS or the Proton Drive app.</li>
+      <li>🔒<strong>Access denied?</strong> Ask the sharer to make the link public.</li>
+    </ul>
+  </div>
+
+  <div class="progress-bar" style="margin-top:14px;">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <div id="stepExtraBtn">
+    <a href="https://xameraman.github.io/mia-install-guide-java-n-bedrock/" target="_blank">
+      🔧 Full Import Guide (Java & Bedrock) – Click Here
+    </a>
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn" id="prevBtn">← Previous</button>
+    <span class="step-indicator" id="stepIndicator">1 / 8</span>
+    <button class="nav-btn" id="nextBtn">Next →</button>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-inner">
+    <div class="footer-logo">
+      <img src="mia-icon.png" alt="MIA" style="width:18px;height:18px;vertical-align:middle;border-radius:4px;margin-right:4px;">
+      MIA — MINECRAFT ITEMS ACCELERATED
+    </div>
+    <div class="footer-sub">ALWAYS CREDIT ORIGINAL PACK CREATORS <span>❤️</span></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+/* ─── Animated canvas background ─── */
+(function(){
+  var c=document.getElementById('bg-canvas');
+  var ctx=c.getContext('2d');
+  var W,H;
+  function R(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+  R();window.addEventListener('resize',R);
+  var S=[];for(var i=0;i<160;i++)S.push({x:Math.random(),y:Math.random()*.85,r:Math.random()*1.4+.3,a:Math.random(),sp:.003+Math.random()*.006,ph:Math.random()*Math.PI*2});
+  var OC=['rgba(93,158,49,','rgba(71,201,107,','rgba(198,120,255,','rgba(255,215,0,','rgba(88,101,242,'];
+  var O=[];for(var i=0;i<7;i++)O.push({x:Math.random(),y:Math.random(),r:60+Math.random()*120,co:OC[Math.floor(Math.random()*OC.length)],vx:(Math.random()-.5)*.00015,vy:(Math.random()-.5)*.00015,a:.04+Math.random()*.05});
+  var PC=['#5D9E31','#7DC940','#FFD700','#47C96B','#C678FF','#fff','#5865F2'];
+  var P=[];function sp(){return{x:Math.random(),y:1.05,s:3+Math.random()*5,co:PC[Math.floor(Math.random()*7)],vx:(Math.random()-.5)*.0004,vy:-(.0004+Math.random()*.0008),a:0,mA:.4+Math.random()*.35,ro:Math.random()*360,rv:(Math.random()-.5)*1.2};}
+  for(var i=0;i<28;i++)P.push(sp());
+  var SH=[];setInterval(function(){SH.push({x:Math.random()*.6,y:Math.random()*.4,len:80+Math.random()*140,sp:.006+Math.random()*.008,pro:0,a:.7+Math.random()*.3,ang:Math.PI/5+(Math.random()-.5)*.3});},3200);
+  var t=0;
+  function D(){
+    ctx.clearRect(0,0,W,H);
+    var g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#06091A');g.addColorStop(.5,'#0A1628');g.addColorStop(1,'#0D2040');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    for(var oi=0;oi<O.length;oi++){var o=O[oi];o.x+=o.vx;o.y+=o.vy;if(o.x<-.1)o.x=1.1;if(o.x>1.1)o.x=-.1;if(o.y<-.1)o.y=1.1;if(o.y>1.1)o.y=-.1;
+      var rg=ctx.createRadialGradient(o.x*W,o.y*H,0,o.x*W,o.y*H,o.r);rg.addColorStop(0,o.co+o.a+')');rg.addColorStop(1,o.co+'0)');
+      ctx.fillStyle=rg;ctx.beginPath();ctx.arc(o.x*W,o.y*H,o.r,0,Math.PI*2);ctx.fill();}
+    for(var si=0;si<S.length;si++){var s=S[si];var p=.4+.6*(.5+.5*Math.sin(t*s.sp+s.ph));ctx.globalAlpha=s.a*p;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r*(.8+.3*p),0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
+    SH=SH.filter(function(s){return s.pro<1.3;});
+    for(var shi=0;shi<SH.length;shi++){var s=SH[shi];s.pro+=s.sp;
+      var sx=s.x*W+Math.cos(s.ang)*s.pro*s.len*3,sy=s.y*H+Math.sin(s.ang)*s.pro*s.len*3;
+      var ex=sx-Math.cos(s.ang)*s.len,ey=sy-Math.sin(s.ang)*s.len;
+      var f=s.pro>.8?1-(s.pro-.8)/.5:1;
+      var lg=ctx.createLinearGradient(ex,ey,sx,sy);lg.addColorStop(0,'rgba(255,255,255,0)');lg.addColorStop(1,'rgba(255,255,255,'+(s.a*f)+')');
+      ctx.strokeStyle=lg;ctx.lineWidth=1.5;ctx.globalAlpha=f;ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(sx,sy);ctx.stroke();ctx.globalAlpha=1;}
+    for(var pi=0;pi<P.length;pi++){var px=P[pi];px.x+=px.vx;px.y+=px.vy;px.ro+=px.rv;px.a=Math.min(px.mA,px.a+.008);if(px.y<-.05){P[pi]=sp();continue;}
+      ctx.save();ctx.translate(px.x*W,px.y*H);ctx.rotate(px.ro*Math.PI/180);ctx.globalAlpha=px.a;ctx.fillStyle=px.co;ctx.fillRect(-px.s/2,-px.s/2,px.s,px.s);ctx.restore();}
+    ctx.globalAlpha=1;t+=.6;requestAnimationFrame(D);
+  }
+  D();
+})();
+
+/* ─── Proton Drive Steps ─── */
+var steps = [
+  {
+    title: "🔐 What is Proton Drive?",
+    body:
+      '<p>Proton Drive is an <strong>end‑to‑end encrypted cloud storage</strong> service from the makers of Proton Mail. Unlike most file hosts, Proton Drive has <strong>zero ads</strong>, <strong>no fake download buttons</strong>, and <strong>no transfer quotas</strong> — every file you share can be downloaded in full.</p>'+
+      '<p style="margin-top:10px;">The key difference: files are <strong>decrypted in your browser</strong> before saving. This means downloads may take a few seconds to start — especially for large files — but your privacy is always protected. Proton cannot read your files, ever.</p>'+
+      '<div class="callout info"><span class="callout-icon">ℹ️</span><span>Proton Drive is one of the safest file hosts available. No account is needed to download shared files — just open the link and go.</span></div>',
+    miaTip: "🌿 <strong>MIA Helps:</strong> Proton Drive links are among the cleanest and safest we share. No ads, no tricks — just secure downloads."
+  },
+  {
+    title: "🟢 Step 1: Open the Proton Drive Link",
+    body:
+      '<p>Tap or click the Proton Drive link. You\'ll see a clean page showing the <strong>file name</strong> and <strong>file size</strong>, with a <strong>Download</strong> button clearly visible.</p>'+
+      '<p style="margin-top:8px;">Unlike MediaFire, there are <strong>no banner ads</strong> or fake download buttons — everything on the page is genuine. You may also see a file preview (image or document) if Proton supports that file type.</p>'+
+      '<div class="callout tip"><span class="callout-icon">💡</span><span>Proton Drive pages are refreshingly clean. The download button is the only clickable action you need — no hunting for the real one.</span></div>',
+    miaTip: "🌿 <strong>MIA Helps:</strong> If the page asks for a password, skip to the password step below — it's a security feature, not a problem."
+  },
+  {
+    title: "🔑 Step 2: Enter a Password (If Required)",
+    body:
+      '<p>Some Proton Drive links are <strong>password‑protected</strong>. If you see a password field, the sharer set it intentionally — ask them for the password.</p>'+
+      '<p style="margin-top:8px;">Simply enter the password and click <strong>Submit</strong> or <strong>Authenticate</strong>. After that, the file page loads normally and the Download button appears.</p>'+
+      '<div class="callout info"><span class="callout-icon">ℹ️</span><span>Password protection is a Proton Drive feature — not an ad or paywall. It\'s there to keep the file secure. If you don\'t have the password, contact the sharer directly.</span></div>',
+    miaTip: "🌿 <strong>MIA Helps:</strong> If an MIA‑shared Proton link asks for a password, we'll always provide it alongside the link in our post."
+  },
+  {
+    title: "📥 Step 3: Click the Download Button",
+    body:
+      '<p>Click the <strong>Download</strong> button. This is where Proton Drive works differently from other hosts — instead of serving a pre‑prepared file, Proton <strong>decrypts the data inside your browser</strong> and then streams the finished file to your device.</p>'+
+      '<p style="margin-top:8px;">This means:</p>'+
+      '<ul style="margin-top:6px;padding-left:20px;">'+
+        '<li>The download may seem to "pause" for a few seconds before starting</li>'+
+        '<li>Progress may not show immediately — be patient</li>'+
+        '<li>The download starts once decryption is complete</li>'+
+      '</ul>'+
+      '<div class="callout warn"><span class="callout-icon">⚠️</span><span>This delay is normal and expected! Proton Drive is processing your file securely. It\'s not broken — just give it a moment.</span></div>',
+    miaTip: "🌿 <strong>MIA Helps:</strong> Think of it like Proton Drive is \"unlocking\" the file for you in real time. The wait is worth the privacy."
+  },
+  {
+    title: "⏳ Step 4: Wait for Processing",
+    body:
+      '<p>How long the processing takes depends on your file size and device:</p>'+
+      '<ul style="margin-top:8px;padding-left:20px;">'+
+        '<li><strong>Small files (under ~50 MB):</strong> Near‑instant — you may not even notice the delay</li>'+
+        '<li><strong>Medium files (~50–500 MB):</strong> A few seconds of "preparing" before download starts</li>'+
+        '<li><strong>Large files (500 MB+):</strong> Longer processing time, especially on mobile or older devices</li>'+
+      '</ul>'+
+      '<p style="margin-top:8px;">Proton Drive uses <strong>service workers</strong> (a background web technology) to stream large files in chunks, avoiding memory limits. This works best on desktop browsers like Chrome, Edge, or Brave.</p>'+
+      '<div class="callout tip"><span class="callout-icon">💡</span><span>On a fast desktop with Chrome, even multi‑gigabyte files process fairly quickly. Mobile devices may be slower due to limited memory.</span></div>',
+    miaTip: "🌿 <strong>MIA Helps:</strong> Most Minecraft files (.mcpack, .mcaddon, .zip) are well under the size that causes noticeable delays. You should be fine!"
+  },
+  {
+    title: "📁 Step 5: Save the File",
+    body:
+      '<p>Once processing finishes, your browser will either <strong>start the download automatically</strong> or <strong>ask where to save</strong>. Choose a location (Downloads is fine) and the file saves like any other download.</p>'+
+      '<p style="margin-top:8px;">For Minecraft files:</p>'+
+      '<ul style="margin-top:6px;padding-left:20px;">'+
+        '<li><strong>.mcpack / .mcaddon</strong> — tap to auto‑import into Minecraft Bedrock</li>'+
+        '<li><strong>.jar</strong> — Java mod (place in your mods folder)</li>'+
+        '<li><strong>.zip</strong> — resource pack or datapack</li>'+
+      '</ul>',
+    miaTip: "🌿 <strong>MIA Helps:</strong> The download is complete when you see the file in your Downloads folder. For import help, use the full guide button at the end."
+  },
+  {
+    title: "📱 Step 6: Mobile Download (Android / iOS)",
+    body:
+      '<p>On mobile, you have two options:</p>'+
+      '<p style="margin-top:8px;"><strong>🔹 Browser method (works everywhere):</strong></p>'+
+      '<ol style="padding-left:20px;">'+
+        '<li>Open the link in Chrome or your browser</li>'+
+        '<li>Tap Download and wait for processing</li>'+
+        '<li>The file saves to your Downloads folder</li>'+
+      '</ol>'+
+      '<p style="margin-top:10px;"><strong>🔹 Proton Drive app:</strong></p>'+
+      '<ol style="padding-left:20px;">'+
+        '<li>Install the Proton Drive app (free, no account needed for downloads)</li>'+
+        '<li>Open the link — it should redirect to the app</li>'+
+        '<li>Tap the menu (⋮) and select Download</li>'+
+      '</ol>'+
+      '<div class="callout tip"><span class="callout-icon">💡</span><span>The Proton Drive app can help with stability, but it\'s not required. For typical Minecraft add‑ons, the browser method works perfectly.</span></div>',
+    miaTip: "🌿 <strong>MIA Helps:</strong> For most Minecraft files, just use your browser. The app is only useful if you download from Proton Drive regularly."
+  },
+  {
+    title: "🛠️ More Troubleshooting & Tips",
+    body:
+      '<p>If you run into issues beyond the fixes shown above, here are a few more details:</p>'+
+      '<p style="margin-top:10px;"><strong>⏳ Stuck for minutes?</strong> — On very large files or slow connections, decryption can take a while. If it\'s been more than 5 minutes with no progress, try refreshing once.</p>'+
+      '<p style="margin-top:10px;"><strong>🐌 Many small files?</strong> — Each file requires its own decryption, which can add up. Consider downloading a zip file instead if possible.</p>'+
+      '<div class="callout info"><span class="callout-icon">ℹ️</span><span>Proton Drive free accounts get <strong>5 GB</strong> of storage with <strong>no file size limits</strong> for sharing — so you\'ll never hit a download cap.</span></div>',
+    miaTip: "🌿 <strong>MIA Helps:</strong> The most common \"problem\" with Proton Drive is simply the decryption delay. If the download doesn\'t start, wait — it almost always works."
+  }
+];
+
+var stepColors = ['#00c6ff','#a78bfa','#f59e0b','#34d399','#f87171','#60a5fa','#f472b6','#00ff88'];
+var totalSteps = steps.length;
+var currentStep = 0;
+
+var container = document.getElementById('stepContainer');
+var prevBtn = document.getElementById('prevBtn');
+var nextBtn = document.getElementById('nextBtn');
+var indicatorEl = document.getElementById('stepIndicator');
+var progressFill = document.getElementById('progressFill');
+var extraBtn = document.getElementById('stepExtraBtn');
+
+prevBtn.onclick = function(){ changeStep(-1); };
+nextBtn.onclick = function(){ changeStep(1); };
+
+function renderSteps() {
+  container.innerHTML = '';
+  steps.forEach(function(step, idx) {
+    var panel = document.createElement('div');
+    panel.className = 'step-panel';
+    var color = stepColors[idx % stepColors.length];
+    panel.style.borderLeftColor = color;
+    panel.innerHTML =
+      '<div class="step-title">' +
+        '<span class="step-num" style="background:'+color+';box-shadow:0 0 14px '+color+';">STEP '+(idx+1)+'</span>' +
+        step.title +
+      '</div>' +
+      '<div class="step-body">'+step.body+'</div>' +
+      '<div class="callout mia-callout">' +
+        '<span class="callout-icon"><img src="mia-icon.png" alt="MIA" style="width:18px;height:18px;border-radius:3px;"></span>' +
+        '<span>'+step.miaTip+'</span>' +
+      '</div>';
+    container.appendChild(panel);
+  });
+}
+
+function updateUI() {
+  var panels = container.querySelectorAll('.step-panel');
+  panels.forEach(function(p, i) { p.classList.toggle('active', i === currentStep); });
+  prevBtn.disabled = (currentStep === 0);
+  nextBtn.disabled = (currentStep === totalSteps - 1);
+  indicatorEl.textContent = (currentStep+1)+' / '+totalSteps;
+  var pct = totalSteps > 1 ? (currentStep/(totalSteps-1))*100 : 100;
+  progressFill.style.width = pct+'%';
+  extraBtn.style.display = (currentStep === totalSteps - 1) ? 'block' : 'none';
+  nextBtn.textContent = (currentStep === totalSteps - 1) ? '✅ Done' : 'Next →';
+}
+
+function changeStep(dir) {
+  var next = currentStep + dir;
+  if (next >= 0 && next < totalSteps) {
+    currentStep = next;
+    updateUI();
+    container.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+}
+
+renderSteps();
+updateUI();
+</script>
+</body>
+</html>
